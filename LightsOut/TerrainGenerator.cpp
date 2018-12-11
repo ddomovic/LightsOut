@@ -9,6 +9,11 @@
 TerrainGenerator::TerrainGenerator(Board *game_board, BoardRenderer *renderer) : game_board(game_board), renderer(renderer) {
 }
 
+//begin the process of generating, return true if successful
+//the sequence is:
+//1. determine_start_and_end()
+//2. determine_path()
+//3. place_walls()
 bool TerrainGenerator::start_generating() {
 
 	this->renderer->draw_board();
@@ -34,6 +39,10 @@ bool TerrainGenerator::start_generating() {
 	return true;
 }
 
+//decide the positions of the start and end points
+//start point will be randomly chosen in one of the corners and the end point will be in the opposite corner
+//actual coordinate of the point can be a maximum distance of 0.25*board_dimension (height or width)
+//from the actual corner (chosen randomly)
 bool TerrainGenerator::determine_start_and_end() {
 	
 	if (this->game_board->get_height() * this->game_board->get_width() <= 1) {
@@ -96,6 +105,8 @@ bool TerrainGenerator::determine_start_and_end() {
 	return true;
 }
 
+//helper function that randomly chooses a direction
+//directions pointing towards the end point have a higher chance of being selected
 std::vector<Direction> TerrainGenerator::choose_direction(int current_height, int current_width, int end_height, int end_width) {
 	bool height_added = false, width_added = false;
 	std::vector<Direction> to_return;
@@ -215,6 +226,7 @@ std::vector<Direction> TerrainGenerator::choose_direction(int current_height, in
 	return to_return;
 }
 
+//helper function that checks if the tile is a starting point or a line segment
 int TerrainGenerator::is_forbidden(std::vector<std::vector<int> > &field, int vertical, int horizontal) {
 
 	if ((field[vertical][horizontal] == START_POINT) || (field[vertical][horizontal] == LINE_SEGMENT)) {
@@ -224,6 +236,7 @@ int TerrainGenerator::is_forbidden(std::vector<std::vector<int> > &field, int ve
 	return 0;
 }
 
+//generate a pseudo-random path from start to finish
 bool TerrainGenerator::determine_path() {
 	std::vector<Direction> directions;
 	std::vector<std::vector<int> > temp_field = this->game_board->get_data();
@@ -342,6 +355,7 @@ bool TerrainGenerator::determine_path() {
 	return true;
 }
 
+//place walls within the board, on WALL_PERCETANGE of free spaces (no start/end points or line segments)
 bool TerrainGenerator::place_walls() {
 	
 	int free_spaces = 0;

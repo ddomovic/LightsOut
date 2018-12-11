@@ -8,6 +8,7 @@ BoardRenderer::BoardRenderer(Board *game_board) {
 	this->game_board = game_board;
 }
 
+// draw the board, draw nothing on the line segment tiles if draw_lines == false
 void BoardRenderer::draw_board(bool draw_lines) {
 	
 	std::vector<std::vector<int> > field = this->game_board->get_data();

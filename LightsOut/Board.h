@@ -11,7 +11,7 @@
 
 class Board {
 private:
-	std::vector<std::vector<int> > data;
+	std::vector<std::vector<int> > data; //contains one of the things from #define block
 	short height, width;
 public:
 	Board();

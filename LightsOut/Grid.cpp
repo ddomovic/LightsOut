@@ -195,7 +195,7 @@ void Grid::UpdatePathTiles(class Tile* start)
 	{
 		for (size_t j = 0; j < NumCols; ++j)
 		{
-			if (!(i == mStartRow && j == mStartCol) && !(i == mEndRow && j == mEndCol) && mTiles[i][j]->GetTileState() != Tile::EPath)
+			if (mTiles[i][j]->GetTileState() != Tile::EStart && mTiles[i][j]->GetTileState() != Tile::EEnd && mTiles[i][j]->GetTileState() != Tile::EPath)
 			{
 				mTiles[i][j]->SetTileState(Tile::EDefault);
 			}
@@ -295,8 +295,9 @@ bool Grid::DetermineStartAndEndTile()
 	}
 
 	SetStartTile(chosen_height_index_start, chosen_width_index_start);
+	std::cout << chosen_height_index_start << " " << chosen_width_index_start << std::endl;
 	SetEndTile(chosen_height_index_end, chosen_width_index_end);
-
+	std::cout << chosen_height_index_end << " " << chosen_width_index_end << std::endl;
 	return true;
 }
 

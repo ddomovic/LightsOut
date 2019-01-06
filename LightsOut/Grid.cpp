@@ -6,7 +6,7 @@
 #include "EnumDirection.h"
 #include "Game.h"
 
-Grid::Grid(class Game* game) : Actor(game)
+Grid::Grid(class Game* game, const size_t rows, const size_t cols) : Actor(game), NumRows(rows), NumCols(cols)
 {
 	//resize the 2d vector to fit the exact number of rows and columns (7 rows and 7 columns)
 	mTiles.resize(NumRows);

@@ -11,7 +11,7 @@
 class Grid : public Actor
 {
 public:
-	Grid(class Game* game);
+	Grid(class Game* game, const size_t rows, const size_t cols);
 	void ProcessClickDown(int x, int y);
 	void ProcessClickUp();
 	bool FindPath(class Tile* start, class Tile* goal);
@@ -38,8 +38,8 @@ private:
 
 	std::vector<class Tile*> mSelectedTiles;
 	std::vector<std::vector<class Tile*>> mTiles;
-	const size_t NumRows = 7;
-	const size_t NumCols = 7;
+	const size_t NumRows;
+	const size_t NumCols;
 	const float StartY = 192.0f;
 	const float StartX = 288.0f;
 	const float TileSize = 64.0f;

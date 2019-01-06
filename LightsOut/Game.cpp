@@ -162,7 +162,7 @@ void Game::GenerateOutput()
 
 void Game::LoadData()
 {
-	mGrid = new Grid(this);
+	mGrid = new Grid(this, 7, 7);
 }
 
 void Game::UnloadData()

@@ -56,13 +56,15 @@ Grid::Grid(class Game* game, const size_t rows, const size_t cols) : Actor(game)
 		}
 	}
 
-	
 	DeterminePath();
 	PlaceWalls();
 	ClearPath();
 	//reverse so we dont have to backtrack to find the path
 	FindPath(GetEndTile(), GetStartTile());
 	UpdatePathTiles(GetStartTile());
+
+
+
 }
 
 void Grid::SelectTile(size_t row, size_t col)
@@ -460,7 +462,8 @@ std::vector<Direction> Grid::ChooseDirection(int current_height, int current_wid
 
 int Grid::IsForbidden(std::vector<std::vector<Tile*> > &field, int row, int col)
 {
-	if ((field[row][col]->GetState() == Tile::EStart) || (field[row][col]->GetState() == Tile::EPath)) {
+	if ((field[row][col]->GetTileState() == Tile::EStart) || (field[row][col]->GetTileState() == Tile::EPath)) 
+	{
 		return 1;
 	}
 
@@ -504,7 +507,6 @@ bool Grid::DeterminePath()
 
 		for (int i = 0; i < 4; i++) 
 		{
-
 			if (dir_vec[i] == UP) 
 			{
 				horizontal_direction = 0;
@@ -525,10 +527,6 @@ bool Grid::DeterminePath()
 				horizontal_direction = -1;
 				vertical_direction = 0;
 			}
-			else {
-				horizontal_direction = 0;
-				vertical_direction = 0;
-			}
 
 			if ((current_height + vertical_direction < 0) || (current_height + vertical_direction >= field.size())) 
 			{
@@ -542,12 +540,10 @@ bool Grid::DeterminePath()
 			{
 				continue;
 			}
-
 			current_height += vertical_direction;
 			current_width += horizontal_direction;
 			success = true;
 			
-
 			break;
 		}
 
@@ -557,6 +553,7 @@ bool Grid::DeterminePath()
 			current_width = start_width;
 			temp_field = field;
 			directions.clear();
+			ClearPath();
 			std::cout << "RESETING!\n";
 			continue;
 		}

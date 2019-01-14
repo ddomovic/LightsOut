@@ -161,7 +161,8 @@ void Game::GenerateOutput()
 		time_t start_time = time(NULL);
 		time_t current_time = time(NULL);
 
-		while (current_time - start_time < 3) {
+		while (current_time - start_time < 3) 
+		{
 			current_time = time(NULL);
 		}
 

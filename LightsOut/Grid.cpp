@@ -160,7 +160,7 @@ void Grid::ProcessClickUp()
 			}
 			else
 			{
-				GetGame()->Shutdown();
+				//GetGame()->Shutdown();
 			}
 		}
 	}

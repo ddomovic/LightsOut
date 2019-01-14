@@ -2,7 +2,6 @@
 #include "Actor.h"
 #include <vector>
 
-#define WALLS_PERCENTAGE 0.7
 #define PERCENTAGE2_MAIN 40
 #define PERCENTAGE2_OTHER 10
 #define PERCENTAGE1_MAIN 70
@@ -12,26 +11,32 @@ class Grid : public Actor
 {
 public:
 	Grid(class Game* game, const size_t rows, const size_t cols);
+	void GenerateGrid();
+	void ClearTiles();
+
 	void ProcessClickDown(int x, int y);
 	void ProcessClickUp();
+
 	bool FindPath(class Tile* start, class Tile* goal);
 	bool PlaceWalls();
 	bool DeterminePath();
 	void ClearPath();
 	std::vector<enum Direction> ChooseDirection(int currentHeight, int currentWidth, int endHeight, int endWidth);
 	int IsForbidden(std::vector<std::vector<class Tile*>> &field, int row, int col);
-	void SetHidden();
+
+	void SetHidden(bool hidden);
 	bool CheckWin();
 
 	class Tile* GetStartTile();
 	class Tile* GetEndTile();
+	bool DetermineStartAndEndTile();
 	void SetStartTile(size_t row, size_t col) { mStartRow = row; mStartCol = col; }
 	void SetEndTile(size_t row, size_t col) { mEndRow = row; mEndCol = col; }
 
 	void UpdateActor(float deltaTime) override;
 
-	bool DetermineStartAndEndTile();
-
+	double GetWallsPercentage() { return mWallsPercentage; }
+	void SetWallsPercentage(double wallsPercentage) { mWallsPercentage = wallsPercentage; }
 private:
 	void SelectTile(size_t row, size_t col);
 	void UpdatePathTiles(class Tile* start);
@@ -48,5 +53,7 @@ private:
 	size_t mStartCol;
 	size_t mEndRow;
 	size_t mEndCol;
+
+	double mWallsPercentage;
 
 };

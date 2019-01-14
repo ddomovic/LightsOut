@@ -8,6 +8,17 @@
 
 Grid::Grid(class Game* game, const size_t rows, const size_t cols) : Actor(game), NumRows(rows), NumCols(cols)
 {
+	GenerateGrid();
+}
+
+void Grid::GenerateGrid()
+{
+	mTiles.clear();
+	mSelectedTiles.clear();
+
+	int level = GetGame()->GetLevel();
+	mWallsPercentage = (level * 2) / 10.f;
+
 	//resize the 2d vector to fit the exact number of rows and columns (7 rows and 7 columns)
 	mTiles.resize(NumRows);
 	for (size_t i = 0; i < mTiles.size(); ++i)
@@ -23,13 +34,6 @@ Grid::Grid(class Game* game, const size_t rows, const size_t cols) : Actor(game)
 			mTiles[i][j] = new Tile(GetGame());
 			mTiles[i][j]->SetPosition(Vector2(StartX + TileSize / 2.0f + j * TileSize, StartY + i * TileSize));
 		}
-	}
-
-	//set start and end tiles
-	if (DetermineStartAndEndTile())
-	{
-		GetStartTile()->SetTileState(Tile::EStart);
-		GetEndTile()->SetTileState(Tile::EEnd);
 	}
 
 	//adding adjacent tiles to the vector
@@ -56,15 +60,30 @@ Grid::Grid(class Game* game, const size_t rows, const size_t cols) : Actor(game)
 		}
 	}
 
+	//set start and end tiles
+	if (DetermineStartAndEndTile())
+	{
+		GetStartTile()->SetTileState(Tile::EStart);
+		GetEndTile()->SetTileState(Tile::EEnd);
+	}
+
 	DeterminePath();
 	PlaceWalls();
 	ClearPath();
 	//reverse so we dont have to backtrack to find the path
 	FindPath(GetEndTile(), GetStartTile());
 	UpdatePathTiles(GetStartTile());
+}
 
-
-
+void Grid::ClearTiles()
+{
+	for (size_t i = 0; i < NumRows; ++i)
+	{
+		for (size_t j = 0; j < NumCols; ++j)
+		{
+			mTiles[i][j]->SetTileState(Tile::EDefault);
+		}
+	}
 }
 
 void Grid::SelectTile(size_t row, size_t col)
@@ -77,13 +96,26 @@ void Grid::SelectTile(size_t row, size_t col)
 	}	
 }
 
-void Grid::SetHidden()
+void Grid::SetHidden(bool hidden)
 {
 	for (size_t i = 0; i < NumRows; ++i)
 	{
 		for (size_t j = 0; j < NumCols; ++j)
 		{
-			mTiles[i][j]->ToggleHidden();
+			if (hidden == true)
+			{
+				if (mTiles[i][j]->mHidden == false)
+				{
+					mTiles[i][j]->ToggleHidden();
+				}
+			}
+			else
+			{
+				if (mTiles[i][j]->mHidden == true)
+				{
+					mTiles[i][j]->ToggleHidden();
+				}
+			}
 		}
 	}
 }
@@ -107,14 +139,29 @@ void Grid::ProcessClickUp()
 {
 	if (!mSelectedTiles.empty())
 	{
-		CheckWin();
-		if (!CheckWin())
+		// Win!
+		if (CheckWin())
 		{
-			for (std::vector<Tile*>::iterator it = mSelectedTiles.begin(); it != mSelectedTiles.end(); ++it)
+			if (GetGame()->GetState() != Game::EWin)
 			{
-				(*it)->ToggleSelect();
+				GetGame()->SetState(Game::EWin);
 			}
-			mSelectedTiles.clear();
+		}
+		// Lose...
+		else
+		{
+			if (GetGame()->GetState() != Game::ELose)
+			{
+				for (std::vector<Tile*>::iterator it = mSelectedTiles.begin(); it != mSelectedTiles.end(); ++it)
+				{
+					(*it)->ToggleSelect();
+				}
+				mSelectedTiles.clear();
+			}
+			else
+			{
+				GetGame()->Shutdown();
+			}
 		}
 	}
 }
@@ -627,7 +674,7 @@ bool Grid::PlaceWalls()
 	}
 
 	int temp_size = free_spaces_vec.size();
-	for (int i = 0; i < (int)(free_spaces * WALLS_PERCENTAGE); i++) 
+	for (int i = 0; i < (int)(free_spaces * mWallsPercentage); i++) 
 	{
 		int index = rand() % temp_size;
 		std::pair<int, int> temp_pair = free_spaces_vec[index];
@@ -641,6 +688,13 @@ bool Grid::PlaceWalls()
 
 bool Grid::CheckWin()
 {
+	//TODO: check if the tiles are adjacent to each other
+	//TODO: add points
+	if (mSelectedTiles.empty())
+	{
+		return false;
+	}
+
 	if (mSelectedTiles.front()->GetTileState() == Tile::EStart && mSelectedTiles.back()->GetTileState() == Tile::EEnd || mSelectedTiles.front()->GetTileState() == Tile::EEnd && mSelectedTiles.back()->GetTileState() == Tile::EStart)
 	{
 		std::vector<Tile*>::iterator it;
@@ -648,20 +702,20 @@ bool Grid::CheckWin()
 		{
 			if ((*it)->mBlocked)
 			{
+				if (GetGame()->GetState() != Game::ELose)
+				{
+					GetGame()->SetState(Game::ELose);
+				}
 				std::cout << "LOSE" << std::endl;
-				break;
+				return false;
 			}
 		}
 
 		if (it == mSelectedTiles.end())
 		{
 			std::cout << "WIN" << std::endl;
+			return true;
 		}
-		if (GetGame()->GetState() != Game::EOver)
-		{
-			GetGame()->SetState(Game::EOver);
-		}
-		return true;
 	}
 	return false;
 }

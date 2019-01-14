@@ -7,8 +7,11 @@
 #include "Grid.h"
 #include<iostream>
 #include <ctime>
+#include<SDL_ttf.h>
+#include "TextSpriteComponent.h"
 
-Game::Game() :mWindow(nullptr), mRenderer(nullptr), mIsRunning(true), mUpdatingActors(false), mState(EVisible) { }
+
+Game::Game() :mWindow(nullptr), mRenderer(nullptr), mIsRunning(true), mUpdatingActors(false), mState(EVisible), mPoints(0.0f), mLevel(1), mEndLevel(3) { }
 
 bool Game::Initialize()
 {
@@ -35,6 +38,12 @@ bool Game::Initialize()
 	if (IMG_Init(IMG_INIT_PNG) == 0)
 	{
 		SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
+		return false;
+	}
+
+	if (TTF_Init() < 0)
+	{
+		SDL_Log("Unable to initialize SDL_ttf: %s", SDL_GetError());
 		return false;
 	}
 
@@ -137,7 +146,7 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-	SDL_SetRenderDrawColor(mRenderer, 53, 53, 53, 255);
+	SDL_SetRenderDrawColor(mRenderer, 194, 223, 227, 255);
 	SDL_RenderClear(mRenderer);
 
 	for (auto sprite : mSprites)
@@ -163,6 +172,14 @@ void Game::GenerateOutput()
 void Game::LoadData()
 {
 	mGrid = new Grid(this, 7, 7);
+
+	Actor* textPlayer = new Actor(this);
+	textPlayer->SetPosition(Vector2(512.0f, 20.0f));
+	mTextPoints = new TextSpriteComponent(textPlayer);
+	mTextPoints->SetScreenSize(Vector2(250.0f, 80.0f));
+
+	mTextPoints->SetTextTexture(GetTextTexture(std::to_string(GetPoints())));
+	
 }
 
 void Game::UnloadData()
@@ -177,6 +194,9 @@ void Game::UnloadData()
 		SDL_DestroyTexture(i.second);
 	}
 	mTextures.clear();
+
+	//mTextPoints->Free();
+
 }
 
 SDL_Texture* Game::GetTexture(const std::string& fileName)
@@ -207,6 +227,30 @@ SDL_Texture* Game::GetTexture(const std::string& fileName)
 		mTextures.emplace(fileName.c_str(), tex);
 	}
 	return tex;
+}
+
+SDL_Texture* Game::GetTextTexture(const std::string text)
+{
+	SDL_Texture* mTexture = nullptr;
+	TTF_Font *gFont = TTF_OpenFont("DIMIS___.ttf", 100);
+	SDL_Color textColor = { 8, 7, 8 };
+
+	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, text.c_str(), textColor);
+	if (textSurface == NULL)
+	{
+		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+	}
+	else
+	{
+		mTexture = SDL_CreateTextureFromSurface(mRenderer, textSurface);
+		if (mTexture == NULL)
+		{
+			printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+		}
+		SDL_FreeSurface(textSurface);
+		mTextures.emplace(text, mTexture);
+	}
+	return mTexture;
 }
 
 void Game::Shutdown()
@@ -272,6 +316,36 @@ void Game::RemoveSprite(SpriteComponent* sprite)
 
 void Game::SetState(State state)
 {
-	mState = state;	
-	mGrid->SetHidden();
+	mState = state;
+
+	if (state == EVisible)
+	{
+		mGrid->SetHidden(false);
+	}
+	else if (state == EHidden)
+	{
+		mGrid->SetHidden(true);
+	}
+	
+	if (mState == ELose)
+	{
+		mGrid->SetHidden(false);
+	}
+	if (mState == EWin && mLevel <= mEndLevel)
+	{
+		mLevel++;
+		LoadLevel();
+	}
+	else if (mState == EWin && mLevel > mEndLevel)
+	{
+		std::cout << "CONGRATULATIONS! YOU'VE BEATEN THE GAME!" << std::endl;
+		Shutdown();
+	}
+}
+
+void Game::LoadLevel()
+{
+	UnloadData();
+	LoadData();
+	SetState(EVisible);
 }

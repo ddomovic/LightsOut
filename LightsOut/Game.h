@@ -13,13 +13,16 @@ public:
 	{
 		EVisible,
 		EHidden,
-		EOver
+		ELose,
+		EWin
 	};
 
 	Game();
 	bool Initialize();
 	void RunLoop();
 	void Shutdown();
+
+	void LoadLevel();
 
 	void AddActor(class Actor* actor);
 	void RemoveActor(class Actor* actor);
@@ -31,8 +34,14 @@ public:
 	void SetState(State state);
 
 	SDL_Texture* GetTexture(const std::string& fileName);
+	SDL_Texture* GetTextTexture(const std::string text);
 
 	class Grid* GetGrid() { return mGrid; }
+
+	void SetPoints(double points) { mPoints = points; }
+	double GetPoints() { return mPoints; }
+
+	int GetLevel() { return mLevel; }
 
 private:
 	void ProcessInput();
@@ -56,4 +65,10 @@ private:
 
 	class Grid* mGrid;
 	State mState;
+
+	double mPoints;
+	class TextSpriteComponent* mTextPoints;
+
+	int mLevel;
+	int mEndLevel;
 };

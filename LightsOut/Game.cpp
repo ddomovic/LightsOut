@@ -11,7 +11,7 @@
 #include "TextSpriteComponent.h"
 
 
-Game::Game() :mWindow(nullptr), mRenderer(nullptr), mIsRunning(true), mUpdatingActors(false), mState(EVisible), mPoints(0.0f), mLevel(1), mEndLevel(3) { }
+Game::Game(Difficulty difficulty) :mWindow(nullptr), mRenderer(nullptr), mIsRunning(true), mUpdatingActors(false), mState(EVisible), mPoints(0.0f), mLevel(1), mEndLevel(10), mDifficulty(difficulty) { }
 
 bool Game::Initialize()
 {
@@ -335,6 +335,7 @@ void Game::SetState(State state)
 	if (mState == EWin && mLevel <= mEndLevel)
 	{
 		mLevel++;
+		SetPoints(mPoints + 1);
 		LoadLevel();
 	}
 	else if (mState == EWin && mLevel > mEndLevel)

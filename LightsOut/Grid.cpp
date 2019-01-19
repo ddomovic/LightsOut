@@ -17,8 +17,22 @@ void Grid::GenerateGrid()
 	mSelectedTiles.clear();
 
 	int level = GetGame()->GetLevel();
-	mWallsPercentage = (level * 2) / 10.f;
-
+	
+	switch (GetGame()->GetDifficulty())
+	{
+		case Game::EEasy:
+			mWallsPercentage = 0.3;
+			break;
+		case Game::ENormal:
+			mWallsPercentage = 0.5;
+			break;
+		case Game::EHard:
+			mWallsPercentage = 0.8;
+			break;
+		default:
+			break;
+	}
+	
 	//resize the 2d vector to fit the exact number of rows and columns (7 rows and 7 columns)
 	mTiles.resize(NumRows);
 	for (size_t i = 0; i < mTiles.size(); ++i)

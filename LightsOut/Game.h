@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "Math.h"
-
+#include<iostream>
 class Game
 {
 public:
@@ -17,7 +17,14 @@ public:
 		EWin
 	};
 
-	Game();
+	enum Difficulty
+	{
+		EEasy,
+		ENormal,
+		EHard
+	};
+
+	Game(Difficulty difficulty);
 	bool Initialize();
 	void RunLoop();
 	void Shutdown();
@@ -38,10 +45,11 @@ public:
 
 	class Grid* GetGrid() { return mGrid; }
 
-	void SetPoints(double points) { mPoints = points; }
+	void SetPoints(double points) { mPoints = points; std::cout << "\nPOINTS: " << mPoints << std::endl; }
 	double GetPoints() { return mPoints; }
 
 	int GetLevel() { return mLevel; }
+	int GetDifficulty() { return mDifficulty; }
 
 private:
 	void ProcessInput();
@@ -71,4 +79,6 @@ private:
 
 	int mLevel;
 	int mEndLevel;
+
+	Difficulty mDifficulty;
 };
